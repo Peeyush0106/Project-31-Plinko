@@ -1,3 +1,4 @@
+// Initial declarations of variables and constants
 const Engine = Matter.Engine;
 const World = Matter.World;
 const Bodies = Matter.Bodies;
@@ -22,27 +23,34 @@ var createdDisco;
 
 var r_color, g_color, b_color;
 
+// Setup all the objects, variables and properties of the game
 function setup() {
+    // canvas
     canvasWidth = 480;
     canvasHeight = 800;
     createCanvas(canvasWidth, canvasHeight);
 
+    // Matter.js engine setup
     engine = Engine.create();
     world = engine.world;
 
+    //Edges
     createEdges();
 
+    //Ground
     ground = new Ground(240, 740, width, 20);
 
+    // Frame Count work
     frameCount = 0;
     frameCountIncreaser = 1;
+
+    //Plinko groups
     plinkos_row_1 = [];
     plinkos_row_2 = [];
     plinkos_row_3 = [];
     plinkos_row_4 = [];
 
-    shouldRestartGame = false;
-
+    // Create the plinkos
     plinkos.push(plinkos_row_1);
     createPlinkos(40, canvasWidth, 100, random(5, 10), plinkos[0]);
 
@@ -55,21 +63,37 @@ function setup() {
     plinkos.push(plinkos_row_4);
     createPlinkos(60, 440, 430, random(5, 10), plinkos[3]);
 
+    // Buckts
     createBuckets(15, 90, 635, 10, 190, "red");
+
+    //Rgb colors for the text
     r_color = 0;
     g_color = 0;
     b_color = 0;
 }
 
 function draw() {
+    // Initial required function calls    
     background(0);
     updateGame();
     setModes();
+    spawnParticle();
 
+    // Display objects
+    displayBuckets(buckets);
+    for (var i = 0; i < plinkos.length; i++) {
+        var plinko_group_for_display = plinkos[i]
+        displayPlinkos(plinko_group_for_display);
+    }
+    ground.display();
+
+    // Texts work
+    // Rgb color increment
     r_color += random(0, 25);
     g_color += random(0, 25);
     b_color += random(0, 25);
 
+    // Reset of rgb colors
     if (r_color >= 255) {
         r_color = 0;
     }
@@ -80,35 +104,7 @@ function draw() {
         b_color = 0;
     }
 
-    // if (particles.length > 5) {
-    //     location.reload();
-    // }
-
-    // if (!shouldRestartGame) {
-        spawnParticle();
-    // }
-    // for (var q = 0; q < particles.length; q++) {
-    //     var particle = particles[q];
-    //     if (particles.length >= 5 && particle.body.position.y > 600) {
-    //         safely_entered_particles.push(particle);
-    //         if (safely_entered_particles.length >= 5) {
-    //             shouldRestartGame = true;
-    //             console.log(safely_entered_particles.length, safely_entered_particles);
-    //         }
-    //     }
-    // }
-
-    displayBuckets(buckets);
-
-    for (var i = 0; i < plinkos.length; i++) {
-        var plinko_group_for_display = plinkos[i]
-        displayPlinkos(plinko_group_for_display);
-    }
-
-    ground.display();
-    // if (shouldRestartGame) {
-    //     restartGame();
-    // }
+    // Display the texts according to the colors and variated porperties
     if (Math.round(frameCount) % 20 >= 0 && Math.round(frameCount) % 20 < 10) {
         push();
         if (Math.round(frameCount) % 8 >= 0 && Math.round(frameCount) % 30 < 30000) {
@@ -116,8 +112,6 @@ function draw() {
         }
         textSize(16);
         text("Created by Peeyush Agarwal, also called Peeyush - The Debugger.", 2.5, 500);
-        // text("Mouse X: " + mouseX, 100, 500);
-        // text("Mouse Y: " + mouseY, 300, 500);
         pop();
     }
     push();
@@ -129,20 +123,7 @@ function draw() {
     pop();
 }
 
-// function restartGame() {
-//     // location.reload();
-//     for (var r = 0; r < particles.length; r++) {
-//         particle = particles[r];
-//         World.remove(world, particle.body);
-//         particles.pop();
-//         r--;
-//         for (var i = 0; i < safely_entered_particles.length; i++) {
-//             safely_entered_particles.pop();
-//         }
-//     }
-//     shouldRestartGame = false;
-// }
-
+// Game updates
 function updateGame() {
     Engine.update(engine);
     frameCount += frameCountIncreaser;
@@ -150,12 +131,14 @@ function updateGame() {
 }
 
 function setModes() {
+    // The modes that are set for the code to function according to the modes set for any object image, etc.
     rectMode(CENTER);
     ellipseMode(RADIUS);
     angleMode(RADIANS);
     imageMode(CENTER);
 }
 
+// Spawn particles after an interval continuously
 function spawnParticle() {
     if (Math.round(frameCount) % 70 === 0) {
         console.log("Ball Spawned");
@@ -166,6 +149,8 @@ function spawnParticle() {
     }
     displayParticles();
 }
+
+// Create the buckets at the bottom
 function createBuckets(initial_x, x_spacing, y, width, height, color) {
     for (var o = initial_x; o < 480; o += x_spacing) {
         var bucket = new Bucket(o, y, width, height, color);
@@ -173,6 +158,7 @@ function createBuckets(initial_x, x_spacing, y, width, height, color) {
     }
 }
 
+// Create the Plinkos that are the obstacles that bounce the particles off
 function createPlinkos(initial_x, maxX, y, radius, plinko_group) {
     for (var l = initial_x; l < maxX; l += 50) {
         var plinko = new Plinko(l, y, radius);
@@ -180,20 +166,22 @@ function createPlinkos(initial_x, maxX, y, radius, plinko_group) {
     }
 }
 
+// Display function declaration for the objects in our game
+//Particles
 function displayParticles() {
     for (var j = 0; j < particles.length; j++) {
         var particle = particles[j];
         particle.display();
     }
 }
-
+// Buckets
 function displayBuckets(group) {
     for (var p = 0; p < group.length; p++) {
         var bucket = group[p];
         bucket.display();
     }
 }
-
+// Plinkos
 function displayPlinkos(plinkos) {
     for (var m = 0; m < plinkos.length; m++) {
         var plinko = plinkos[m];
@@ -201,6 +189,7 @@ function displayPlinkos(plinkos) {
     }
 }
 
+//Edges in the game.
 function createEdges() {
     side_EdgesWidth = 10;
     topAndBottom_EdgesHeight = 10;
